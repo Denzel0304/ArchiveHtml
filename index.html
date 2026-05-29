@@ -270,7 +270,8 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 // zHtml79 — 접두사 상수 (다른 앱과 충돌 방지)
 // ══════════════════════════════════════════════════════════
 const Z = {
-  LS_SESSION : 'zHtml79_session',   // 로컬스토리지: 세션 UUID
+  LS_SESSION : 'zHtml79_session',   // 로컬스토리지: 잠금 상태 (있으면 자동로그인)
+  LS_FIXED_KEY:'zHtml79_fixedKey',  // 로컬스토리지: 영구 고정 UUID (절대 바뀌지 않음)
   LS_LOCK    : 'zHtml79_lockUntil', // 로컬스토리지: 잠금 해제 시각
   LS_FAILS   : 'zHtml79_failCount', // 로컬스토리지: 연속 실패 횟수
   PIN_HASH   : 'zHtml79_pinHash',   // 로컬스토리지: PIN 해시
@@ -306,11 +307,18 @@ function uuidv4(){
 // ══════════════════════════════════════════════════════════
 // 로그인 / 잠금 시스템
 // ══════════════════════════════════════════════════════════
-let sessionKey = null; // 인증된 세션 UUID
+let sessionKey = null; // 인증된 세션 UUID (항상 동일한 고정값)
 
-function getSessionKey(){return localStorage.getItem(Z.LS_SESSION);}
-function setSessionKey(k){localStorage.setItem(Z.LS_SESSION,k);sessionKey=k;}
-function clearSessionKey(){localStorage.removeItem(Z.LS_SESSION);sessionKey=null;}
+// 고정 키: 최초 1회 생성 후 절대 변경하지 않음 — Supabase RLS의 기준값
+function getOrCreateFixedKey(){
+  let k=localStorage.getItem(Z.LS_FIXED_KEY);
+  if(!k){k=uuidv4();localStorage.setItem(Z.LS_FIXED_KEY,k);}
+  return k;
+}
+// 세션 플래그: 잠금/해제 상태만 관리 (키 자체는 아님)
+function getSessionFlag(){return localStorage.getItem(Z.LS_SESSION);}
+function setSessionFlag(){localStorage.setItem(Z.LS_SESSION,'1');}
+function clearSessionFlag(){localStorage.removeItem(Z.LS_SESSION);sessionKey=null;}
 
 function getLockUntil(){return parseInt(localStorage.getItem(Z.LS_LOCK)||'0');}
 function getFailCount(){return parseInt(localStorage.getItem(Z.LS_FAILS)||'0');}
@@ -345,10 +353,9 @@ function showLockMsg(until){
 let lockInterval=null;
 
 async function initLogin(){
-  // 이미 저장된 세션이 있으면 바로 앱으로
-  const saved=getSessionKey();
-  if(saved){
-    sessionKey=saved;
+  // 세션 플래그가 있으면 (잠금 안 된 상태) 바로 앱으로
+  if(getSessionFlag()){
+    sessionKey=getOrCreateFixedKey();
     await bootApp();
     return;
   }
@@ -404,17 +411,18 @@ async function attemptLogin(inputs){
   const hash=await hashPin(pin);
   const storedHash=localStorage.getItem(Z.PIN_HASH);
   if(!storedHash){
-    // 최초 PIN 설정
+    // 최초 PIN 설정 — 고정 키도 이때 생성
     localStorage.setItem(Z.PIN_HASH,hash);
-    const newKey=uuidv4();
-    setSessionKey(newKey);
+    sessionKey=getOrCreateFixedKey();
+    setSessionFlag();
     await bootApp();
     return;
   }
   if(hash===storedHash){
     clearLock();
-    const newKey=uuidv4();
-    setSessionKey(newKey);
+    // 고정 키 재사용 (절대 새로 만들지 않음)
+    sessionKey=getOrCreateFixedKey();
+    setSessionFlag();
     await bootApp();
   }else{
     const fails=getFailCount()+1;
@@ -442,7 +450,7 @@ async function bootApp(){
 }
 
 function logout(){
-  clearSessionKey();
+  clearSessionFlag(); // 세션 플래그만 지움 — 고정 키(zHtml79_fixedKey)는 유지
   location.reload();
 }
 
