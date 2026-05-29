@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archive 스냅샷</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f6f8;--bg2:#ffffff;--bg3:#eef0f3;--bg4:#e2e4e8;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --text:#1a1b1f;--text2:#4a4c57;--text3:#9a9ba8;
+  --accent:#2563eb;--accent2:#1d4ed8;
+  --accent-bg:rgba(37,99,235,0.08);--accent-border:rgba(37,99,235,0.3);
+  --green:#16a34a;--green-bg:rgba(22,163,74,0.08);
+  --amber:#b45309;--amber-bg:rgba(180,83,9,0.08);
+  --red:#dc2626;--red-bg:rgba(220,38,38,0.08);
+  --purple:#7c3aed;--purple-bg:rgba(124,58,237,0.08);
+  --radius:8px;--font:'Noto Sans KR',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.55;min-height:100vh}
+.wrap{max-width:1120px;margin:0 auto;padding:24px 22px 50px}
+
+/* ── 로그인 화면 ── */
+#login-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:999;
+  display:flex;align-items:center;justify-content:center;
+}
+.login-box{
+  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:36px 32px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.08);
+  display:flex;flex-direction:column;gap:18px;
+}
+.login-title{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;letter-spacing:-.3px}
+.login-sub{font-size:12px;color:var(--text3);margin-top:-10px}
+.login-field label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;display:block;margin-bottom:6px}
+.pin-row{display:flex;gap:10px;justify-content:center}
+.pin-row input{
+  width:56px;height:64px;text-align:center;font-size:28px;font-family:var(--mono);
+  font-weight:700;background:var(--bg3);border:2px solid var(--border);
+  border-radius:8px;color:var(--text);outline:none;caret-color:transparent;
+  transition:border .15s,background .15s;
+  -webkit-text-security:disc;
+}
+.pin-row input:focus{border-color:var(--accent-border);background:var(--accent-bg)}
+.pin-row input.filled{border-color:var(--border2)}
+#login-error{
+  font-size:12px;color:var(--red);background:var(--red-bg);border:1px solid rgba(220,38,38,0.15);
+  border-radius:6px;padding:8px 12px;display:none;text-align:center;
+}
+#login-error.show{display:block}
+.btn-login{
+  background:var(--accent);color:#fff;border:none;border-radius:8px;
+  padding:12px;font-family:var(--font);font-size:14px;font-weight:600;
+  cursor:pointer;transition:background .15s;width:100%;
+}
+.btn-login:hover{background:var(--accent2)}
+.btn-login:disabled{background:var(--text3);cursor:not-allowed}
+.login-lock-msg{font-size:12px;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:8px 12px;text-align:center;display:none}
+.login-lock-msg.show{display:block}
+
+/* ── 메인 앱 (로그인 전에는 숨김) ── */
+#app{display:none}
+#app.ready{display:block}
+
+/* HEADER */
+.hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;gap:20px;flex-wrap:wrap}
+.hd-l{display:flex;align-items:center;gap:13px}
+.hd-ic{font-size:30px;line-height:1}
+.hd-t{font-size:22px;font-weight:700;letter-spacing:-.5px;display:flex;align-items:center;gap:9px}
+.hd-t b{color:var(--accent)}
+.hd-tag{font-size:10px;background:var(--amber-bg);color:var(--amber);padding:3px 9px;border-radius:20px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.hd-sub{font-size:12px;color:var(--text3);margin-top:3px}
+.hd-stats{display:flex;gap:18px;font-size:12px;color:var(--text2);align-items:center}
+.hd-stats .s{display:flex;align-items:center;gap:6px}
+.hd-stats b{color:var(--text);font-family:var(--mono);font-weight:600;font-size:14px}
+.btn-logout{background:none;border:1px solid var(--border);color:var(--text3);border-radius:6px;padding:5px 12px;font-family:var(--font);font-size:11px;cursor:pointer;transition:all .15s}
+.btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+/* SYNC STATUS */
+.sync-bar{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3);margin-bottom:14px;height:20px}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.err{background:var(--red)}
+.sync-dot.loading{background:var(--amber);animation:pulse .8s ease-in-out infinite alternate}
+@keyframes pulse{from{opacity:.4}to{opacity:1}}
+
+/* INPUT CARD */
+.in{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.in-t{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:9px}
+.in-t #edit-badge{background:var(--amber-bg);color:var(--amber);padding:2px 9px;border-radius:10px;font-size:10px;font-weight:600;letter-spacing:.5px}
+.urlrow{display:flex;gap:8px;margin-bottom:10px}
+#url-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 13px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border .15s}
+#url-input:focus{border-color:var(--accent-border)}
+.btn-archive{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:10px 18px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .15s;white-space:nowrap}
+.btn-archive:hover{background:var(--accent2)}
+.btn-archive.cooldown{background:var(--text3);cursor:not-allowed;pointer-events:none}
+.metarow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+#title-input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 13px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border .15s}
+#title-input:focus{border-color:var(--accent-border)}
+.tagrow{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 11px;flex-wrap:wrap;min-height:38px}
+.tagrow .tag-prefix{font-size:11px;color:var(--text3)}
+#tag-input{flex:1;background:none;border:none;outline:none;font-family:var(--font);font-size:13px;color:var(--text);min-width:80px}
+#tag-input::placeholder{color:var(--text3)}
+.tag-chip{display:inline-flex;align-items:center;gap:3px;background:var(--accent-bg);color:var(--accent);font-size:11px;padding:2px 8px;border-radius:14px;font-weight:500}
+.tag-x{background:none;border:none;color:var(--accent);cursor:pointer;font-size:12px;line-height:1;padding:0;opacity:.7}
+.tag-x:hover{opacity:1;color:var(--red)}
+#note-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:9px 13px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;resize:vertical;min-height:60px;line-height:1.6;transition:border .15s}
+#note-input:focus{border-color:var(--accent-border)}
+.in-actions{display:flex;gap:8px;margin-top:10px;justify-content:flex-end}
+.btn-2{background:none;border:1px solid var(--border);color:var(--text2);border-radius:6px;padding:7px 14px;font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s}
+.btn-2:hover{border-color:var(--border2);background:var(--bg3)}
+.btn-2.cancel:hover{border-color:var(--red);color:var(--red)}
+.btn-2.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-2.primary:hover{background:var(--accent2)}
+
+/* FILTER ROW */
+.fl{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.fl-search{position:relative;flex:1;max-width:300px}
+.fl-search input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 32px 8px 32px;color:var(--text);font-family:var(--font);font-size:13px;outline:none}
+.fl-search input:focus{border-color:var(--accent-border)}
+.fl-search .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;pointer-events:none}
+.fl-search .sx{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;display:none}
+.fl-search .sx.show{display:block}
+.fl-sort{display:flex;gap:2px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:2px}
+.fl-sort button{background:none;border:none;font-family:var(--font);font-size:12px;padding:5px 11px;border-radius:4px;color:var(--text3);cursor:pointer;transition:all .1s}
+.fl-sort button.active{background:var(--bg3);color:var(--text)}
+#filter-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.fl-tag{background:var(--bg2);border:1px solid var(--border);color:var(--text2);font-size:11px;padding:3px 10px;border-radius:14px;cursor:pointer;transition:all .1s;font-family:var(--font)}
+.fl-tag:hover{border-color:var(--border2)}
+.fl-tag.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:12px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px 11px;transition:all .15s;display:flex;flex-direction:column;gap:8px;position:relative;min-height:140px}
+.card:hover{border-color:var(--border2);box-shadow:0 4px 14px rgba(0,0,0,0.05)}
+.card-hd{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text3);font-family:var(--mono)}
+.card-fav{width:14px;height:14px;border-radius:3px;flex-shrink:0;object-fit:contain}
+.card-dom{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-st{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;flex-shrink:0;letter-spacing:.2px}
+.card-st.ok{background:var(--green-bg);color:var(--green)}
+.card-title{font-size:14px;font-weight:600;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.card-title .nullt{color:var(--text3);font-weight:400;font-style:italic}
+.card-note{font-size:12px;color:var(--text2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.card-tags{display:flex;flex-wrap:wrap;gap:4px}
+.card-tag{font-size:10px;background:var(--bg3);color:var(--text2);padding:2px 7px;border-radius:10px}
+.card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px;border-top:1px dashed var(--border);gap:6px}
+.card-date{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.card-btns{display:flex;gap:1px}
+.card-btn{background:none;border:1px solid transparent;color:var(--text3);cursor:pointer;font-size:13px;padding:3px 7px;border-radius:4px;transition:all .1s;font-family:var(--font);line-height:1}
+.card-btn:hover{background:var(--bg3);color:var(--text2)}
+.card-btn.go-archive:hover{background:var(--amber-bg);color:var(--amber);border-color:rgba(180,83,9,0.2)}
+.card-btn.del:hover{background:var(--red-bg);color:var(--red);border-color:rgba(220,38,38,0.2)}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--text3);grid-column:1/-1}
+.empty-ic{font-size:48px;opacity:0.35;margin-bottom:10px}
+.empty-t{font-size:15px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.empty-d{font-size:12px;color:var(--text3)}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--text);color:#fff;font-size:12px;padding:9px 18px;border-radius:6px;opacity:0;transition:transform .25s ease,opacity .2s;z-index:200;pointer-events:none;white-space:nowrap;font-weight:500}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+@media (max-width:680px){
+  .metarow{grid-template-columns:1fr}
+  .hd{flex-direction:column;align-items:flex-start}
+  .hd-stats{font-size:11px}
+  .login-box{width:90%;padding:28px 20px}
+  .pin-row input{width:48px;height:56px;font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ 로그인 화면 ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">🏛️ Archive <span style="color:var(--accent);font-weight:700">스냅샷</span></div>
+    <div class="login-sub">4자리 PIN을 입력하세요</div>
+    <div class="login-field">
+      <label>PIN</label>
+      <div class="pin-row">
+        <input type="password" inputmode="numeric" maxlength="1" id="pin0" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="pin1" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="pin2" autocomplete="off">
+        <input type="password" inputmode="numeric" maxlength="1" id="pin3" autocomplete="off">
+      </div>
+    </div>
+    <div id="login-error" class=""></div>
+    <div id="login-lock-msg" class="login-lock-msg"></div>
+    <button class="btn-login" id="login-btn">잠금 해제</button>
+  </div>
+</div>
+
+<!-- ══ 메인 앱 ══ -->
+<div id="app">
+<div class="wrap">
+
+  <div class="hd">
+    <div class="hd-l">
+      <span class="hd-ic">🏛️</span>
+      <div>
+        <div class="hd-t">Archive <b>스냅샷</b><span class="hd-tag">Supabase</span></div>
+        <div class="hd-sub">원본이 사라져도 archive.org에 보존되는 페이지 사본</div>
+      </div>
+    </div>
+    <div class="hd-stats">
+      <span class="s">📦 <b id="stat-total">0</b><span>개 보관</span></span>
+      <button class="btn-logout" id="logout-btn">🔒 잠금</button>
+    </div>
+  </div>
+
+  <div class="sync-bar">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-msg">Supabase 연결 중...</span>
+  </div>
+
+  <div class="in">
+    <div class="in-t">
+      <span id="in-mode-label">새 박제</span>
+      <span id="edit-badge" style="display:none">수정 중</span>
+    </div>
+    <div class="urlrow">
+      <input id="url-input" type="text" placeholder="https://...  박제할 페이지 주소" spellcheck="false">
+      <button class="btn-archive" id="archive-btn"><span>🏛</span><span id="archive-btn-label">박제하기</span></button>
+    </div>
+    <div class="metarow">
+      <input id="title-input" type="text" placeholder="제목 (예: 삼성전자 2024 Q3 실적)">
+      <div class="tagrow" id="tagrow">
+        <span class="tag-prefix">#</span>
+        <input id="tag-input" type="text" placeholder="태그 입력 후 Enter">
+      </div>
+    </div>
+    <textarea id="note-input" placeholder="메모 — 이 페이지를 박제한 이유, 핵심 내용 등을 적어두세요"></textarea>
+    <div class="in-actions" id="edit-actions" style="display:none">
+      <button class="btn-2 cancel" id="cancel-edit-btn">취소</button>
+      <button class="btn-2 primary" id="save-edit-btn">메모만 저장 (재박제 없이)</button>
+    </div>
+  </div>
+
+  <div class="fl">
+    <div class="fl-search">
+      <span class="si">🔍</span>
+      <input id="search-input" type="text" placeholder="검색..." spellcheck="false">
+      <button class="sx" id="search-clear">✕</button>
+    </div>
+    <div class="fl-sort">
+      <button class="active" data-sort="archived">최근 박제</button>
+      <button data-sort="created">생성순</button>
+      <button data-sort="title">제목순</button>
+    </div>
+  </div>
+  <div id="filter-tags"></div>
+  <div class="cards" id="cards"></div>
+
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// zHtml79 — 접두사 상수 (다른 앱과 충돌 방지)
+// ══════════════════════════════════════════════════════════
+const Z = {
+  LS_SESSION : 'zHtml79_session',   // 로컬스토리지: 세션 UUID
+  LS_LOCK    : 'zHtml79_lockUntil', // 로컬스토리지: 잠금 해제 시각
+  LS_FAILS   : 'zHtml79_failCount', // 로컬스토리지: 연속 실패 횟수
+  PIN_HASH   : 'zHtml79_pinHash',   // 로컬스토리지: PIN 해시
+  SUPABASE_URL : 'https://zkkhzsgaryoraytvsqbf.supabase.co',
+  SUPABASE_KEY : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpra2h6c2dhcnlvcmF5dHZzcWJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc5ODM5OTcsImV4cCI6MjA1MzU1OTk5N30.UJtqcka35dVssnZRuUk6zukfjF9UNX392Shd841GSQk',
+  TABLE      : 'zHtml',
+  MAX_FAILS  : 5,
+  LOCK_MS    : 10 * 60 * 1000,      // 10분
+};
+
+// ══════════════════════════════════════════════════════════
+// 유틸
+// ══════════════════════════════════════════════════════════
+function g(id){return document.getElementById(id);}
+function eh(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function domain(url){try{return new URL(url).hostname.replace(/^www\./,'');}catch(e){return url||'';}}
+function favicon(url){if(!url||!url.startsWith('http'))return'';return`https://www.google.com/s2/favicons?domain=${encodeURIComponent(url)}&sz=32`;}
+function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
+function toast(msg,dur=2200){const t=g('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
+function makeWildcardArchiveUrl(url){return`https://web.archive.org/web/${url}`;}
+
+// 간단한 해시 (PIN 검증용 — 실제 암호화 아님, 단독 기기 PIN 체크용)
+async function hashPin(pin){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('zHtml79_salt_'+pin));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+// UUID v4
+function uuidv4(){
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+}
+
+// ══════════════════════════════════════════════════════════
+// 로그인 / 잠금 시스템
+// ══════════════════════════════════════════════════════════
+let sessionKey = null; // 인증된 세션 UUID
+
+function getSessionKey(){return localStorage.getItem(Z.LS_SESSION);}
+function setSessionKey(k){localStorage.setItem(Z.LS_SESSION,k);sessionKey=k;}
+function clearSessionKey(){localStorage.removeItem(Z.LS_SESSION);sessionKey=null;}
+
+function getLockUntil(){return parseInt(localStorage.getItem(Z.LS_LOCK)||'0');}
+function getFailCount(){return parseInt(localStorage.getItem(Z.LS_FAILS)||'0');}
+function setFailCount(n){localStorage.setItem(Z.LS_FAILS,String(n));}
+function setLock(){localStorage.setItem(Z.LS_LOCK,String(Date.now()+Z.LOCK_MS));}
+function clearLock(){localStorage.removeItem(Z.LS_LOCK);localStorage.removeItem(Z.LS_FAILS);}
+
+function isLocked(){
+  const until=getLockUntil();
+  if(until>Date.now())return until;
+  if(until&&until<=Date.now())clearLock();
+  return false;
+}
+
+function showLockMsg(until){
+  const rem=Math.ceil((until-Date.now())/1000);
+  const m=Math.floor(rem/60),s=rem%60;
+  const lm=g('login-lock-msg');
+  lm.textContent=`로그인 5회 실패 — ${m}분 ${s}초 후 다시 시도하세요`;
+  lm.classList.add('show');
+  g('login-btn').disabled=true;
+  g('login-error').classList.remove('show');
+  // 1초마다 갱신
+  clearInterval(lockInterval);
+  lockInterval=setInterval(()=>{
+    const r=Math.ceil((getLockUntil()-Date.now())/1000);
+    if(r<=0){clearInterval(lockInterval);lm.classList.remove('show');g('login-btn').disabled=false;return;}
+    const mm=Math.floor(r/60),ss=r%60;
+    lm.textContent=`로그인 5회 실패 — ${mm}분 ${ss}초 후 다시 시도하세요`;
+  },1000);
+}
+let lockInterval=null;
+
+async function initLogin(){
+  // 이미 저장된 세션이 있으면 바로 앱으로
+  const saved=getSessionKey();
+  if(saved){
+    sessionKey=saved;
+    await bootApp();
+    return;
+  }
+  // PIN이 설정된 적 없으면 최초 설정 모드
+  const hasPin=!!localStorage.getItem(Z.PIN_HASH);
+  if(!hasPin){
+    g('login-error').textContent='최초 실행: PIN을 설정합니다. 4자리 숫자를 입력하세요.';
+    g('login-error').style.background='var(--accent-bg)';
+    g('login-error').style.color='var(--accent)';
+    g('login-error').style.borderColor='var(--accent-border)';
+    g('login-error').classList.add('show');
+    g('login-btn').textContent='PIN 설정';
+  }
+  // 잠금 상태 확인
+  const lockUntil=isLocked();
+  if(lockUntil)showLockMsg(lockUntil);
+  // 로그인 화면 표시
+  g('login-screen').style.display='flex';
+  setupPinInputs();
+}
+
+function setupPinInputs(){
+  const inputs=[g('pin0'),g('pin1'),g('pin2'),g('pin3')];
+  inputs.forEach((inp,i)=>{
+    inp.addEventListener('input',()=>{
+      inp.value=inp.value.replace(/\D/g,'').slice(-1);
+      if(inp.value)inp.classList.add('filled'); else inp.classList.remove('filled');
+      if(inp.value&&i<3)inputs[i+1].focus();
+      if(i===3&&inp.value)attemptLogin(inputs);
+    });
+    inp.addEventListener('keydown',e=>{
+      if(e.key==='Backspace'&&!inp.value&&i>0){inputs[i-1].focus();}
+      if(e.key==='Enter'){attemptLogin(inputs);}
+    });
+    inp.addEventListener('paste',e=>{
+      e.preventDefault();
+      const pasted=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
+      pasted.split('').forEach((ch,j)=>{if(inputs[j]){inputs[j].value=ch;inputs[j].classList.add('filled');}});
+      if(pasted.length===4)attemptLogin(inputs);
+    });
+  });
+  setTimeout(()=>inputs[0].focus(),100);
+}
+
+async function attemptLogin(inputs){
+  if(isLocked()){return;}
+  const pin=inputs.map(i=>i.value).join('');
+  if(pin.length<4){
+    g('login-error').textContent='4자리를 모두 입력하세요';
+    g('login-error').classList.add('show');
+    return;
+  }
+  const hash=await hashPin(pin);
+  const storedHash=localStorage.getItem(Z.PIN_HASH);
+  if(!storedHash){
+    // 최초 PIN 설정
+    localStorage.setItem(Z.PIN_HASH,hash);
+    const newKey=uuidv4();
+    setSessionKey(newKey);
+    await bootApp();
+    return;
+  }
+  if(hash===storedHash){
+    clearLock();
+    const newKey=uuidv4();
+    setSessionKey(newKey);
+    await bootApp();
+  }else{
+    const fails=getFailCount()+1;
+    setFailCount(fails);
+    if(fails>=Z.MAX_FAILS){
+      setLock();
+      showLockMsg(getLockUntil());
+    }else{
+      g('login-error').textContent=`PIN이 틀렸습니다 (${fails}/${Z.MAX_FAILS}회 실패)`;
+      g('login-error').style.background='';g('login-error').style.color='';g('login-error').style.borderColor='';
+      g('login-error').classList.add('show');
+      inputs.forEach(i=>{i.value='';i.classList.remove('filled');});
+      inputs[0].focus();
+    }
+  }
+}
+
+async function bootApp(){
+  g('login-screen').style.display='none';
+  g('app').classList.add('ready');
+  setSyncStatus('loading','Supabase 연결 중...');
+  await loadFromSupabase();
+  bindEvents();
+  render();
+}
+
+function logout(){
+  clearSessionKey();
+  location.reload();
+}
+
+// ══════════════════════════════════════════════════════════
+// Supabase API
+// ══════════════════════════════════════════════════════════
+function supaHeaders(){
+  return{
+    'Content-Type':'application/json',
+    'apikey':Z.SUPABASE_KEY,
+    'Authorization':'Bearer '+Z.SUPABASE_KEY,
+    'x-zhtml79-key':sessionKey,         // RLS 검증 헤더
+    'Prefer':'return=representation',
+  };
+}
+
+async function sbFetch(path,opts={}){
+  const url=Z.SUPABASE_URL+'/rest/v1/'+path;
+  const res=await fetch(url,{...opts,headers:{...supaHeaders(),...(opts.headers||{})}});
+  if(!res.ok){
+    const err=await res.text();
+    throw new Error(err);
+  }
+  const text=await res.text();
+  return text?JSON.parse(text):[];
+}
+
+function setSyncStatus(state,msg){
+  const dot=g('sync-dot'),sm=g('sync-msg');
+  dot.className='sync-dot '+state;
+  sm.textContent=msg;
+}
+
+// ── 카드 목록 조회 ──
+async function loadFromSupabase(){
+  try{
+    const rows=await sbFetch(`${Z.TABLE}?select=*&order=archived_at.desc`);
+    db.cards=rows.map(rowToCard);
+    setSyncStatus('ok',`Supabase 연결됨 · ${db.cards.length}개`);
+  }catch(e){
+    setSyncStatus('err','Supabase 오류 — 로컬 캐시 사용');
+    console.error(e);
+  }
+}
+
+// ── DB 행 ↔ 카드 변환 ──
+function rowToCard(r){
+  return{
+    id       :r.id,
+    client_id:r.client_id||r.id,
+    url      :r.url||'',
+    title    :r.title||'',
+    note     :r.note||'',
+    tags     :r.tags||[],
+    archiveUrl:r.archive_url||'',
+    created  :r.created_at||Date.now(),
+    archived :r.archived_at||Date.now(),
+    status   :'ok',
+    sbId     :r.id,
+  };
+}
+
+function cardToRow(card){
+  return{
+    session_key:sessionKey,
+    url        :card.url||'',
+    title      :card.title||'',
+    note       :card.note||'',
+    tags       :card.tags||[],
+    archive_url:card.archiveUrl||'',
+    created_at :card.created||Date.now(),
+    archived_at:card.archived||Date.now(),
+    client_id  :card.client_id||null,
+  };
+}
+
+// ── INSERT ──
+async function insertCard(card){
+  setSyncStatus('loading','저장 중...');
+  try{
+    const rows=await sbFetch(`${Z.TABLE}`,{
+      method:'POST',
+      body:JSON.stringify(cardToRow(card)),
+    });
+    const inserted=Array.isArray(rows)?rows[0]:rows;
+    card.sbId=inserted.id;
+    card.id=inserted.id;
+    setSyncStatus('ok','저장됨');
+    return card;
+  }catch(e){
+    setSyncStatus('err','저장 실패');
+    console.error(e);
+    throw e;
+  }
+}
+
+// ── UPDATE ──
+async function updateCard(card){
+  if(!card.sbId){await insertCard(card);return;}
+  setSyncStatus('loading','수정 중...');
+  try{
+    await sbFetch(`${Z.TABLE}?id=eq.${card.sbId}`,{
+      method:'PATCH',
+      body:JSON.stringify(cardToRow(card)),
+    });
+    setSyncStatus('ok','수정됨');
+  }catch(e){
+    setSyncStatus('err','수정 실패');
+    console.error(e);
+    throw e;
+  }
+}
+
+// ── DELETE ──
+async function deleteCardRemote(sbId){
+  setSyncStatus('loading','삭제 중...');
+  try{
+    await sbFetch(`${Z.TABLE}?id=eq.${sbId}`,{method:'DELETE',headers:{'Prefer':''}});
+    setSyncStatus('ok','삭제됨');
+  }catch(e){
+    setSyncStatus('err','삭제 실패');
+    console.error(e);
+    throw e;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// 앱 상태
+// ══════════════════════════════════════════════════════════
+let db={cards:[]};
+let state={editId:null,tempTags:[],search:'',sort:'archived',filterTag:null,lastSaveAt:0,cooldownTimer:null};
+const COOLDOWN_MS=30000;
+
+// ── 쿨다운 ──
+function cooldownLeft(){return state.lastSaveAt?Math.max(0,COOLDOWN_MS-(Date.now()-state.lastSaveAt)):0;}
+function updateArchiveBtn(){
+  const btn=g('archive-btn'),lbl=g('archive-btn-label'),left=cooldownLeft();
+  if(left>0){
+    btn.classList.add('cooldown');
+    lbl.textContent=`${Math.ceil(left/1000)}초 대기`;
+    if(!state.cooldownTimer)state.cooldownTimer=setInterval(updateArchiveBtn,500);
+  }else{
+    btn.classList.remove('cooldown');
+    lbl.textContent=state.editId?'다시 박제':'박제하기';
+    if(state.cooldownTimer){clearInterval(state.cooldownTimer);state.cooldownTimer=null;}
+  }
+}
+function markSaveTriggered(){state.lastSaveAt=Date.now();updateArchiveBtn();}
+function triggerSaveTab(url){window.open(`https://web.archive.org/save/${url}`,'_blank','noopener');}
+
+// ── 메인 액션: 박제 ──
+async function handleArchive(){
+  const url=g('url-input').value.trim();
+  if(!url){toast('URL을 입력해 주세요');return;}
+  if(!/^https?:\/\//.test(url)){toast('URL은 http:// 또는 https:// 로 시작해야 합니다');return;}
+  const cd=cooldownLeft();
+  if(cd>0){toast(`archive.org 동시 요청 제한 — ${Math.ceil(cd/1000)}초 후 다시 시도하세요`,3000);return;}
+  const title=g('title-input').value.trim();
+  const note=g('note-input').value.trim();
+  const tags=[...state.tempTags];
+  const now=Date.now();
+  triggerSaveTab(url);
+  markSaveTriggered();
+  if(state.editId){
+    const card=db.cards.find(c=>c.id===state.editId);
+    if(!card)return;
+    card.url=url;card.title=title;card.note=note;card.tags=tags;
+    card.archived=now;card.archiveUrl=makeWildcardArchiveUrl(url);
+    try{await updateCard(card);toast('박제 갱신을 시작했습니다');}
+    catch(e){toast('수정 저장 실패');}
+    exitEditMode();
+  }else{
+    const card={url,title,note,tags,created:now,archived:now,status:'ok',archiveUrl:makeWildcardArchiveUrl(url)};
+    try{
+      const saved=await insertCard(card);
+      db.cards.unshift(saved);
+      toast('박제를 시작했습니다 — 🏛 버튼은 이미 활성화');
+      clearInput();
+    }catch(e){toast('저장 실패');}
+  }
+  render();
+}
+
+async function reArchive(id){
+  const c=db.cards.find(x=>x.id===id);if(!c)return;
+  const cd=cooldownLeft();
+  if(cd>0){toast(`archive.org 동시 요청 제한 — ${Math.ceil(cd/1000)}초 후 다시 시도하세요`,3000);return;}
+  c.archived=Date.now();c.archiveUrl=makeWildcardArchiveUrl(c.url);
+  try{await updateCard(c);render();triggerSaveTab(c.url);markSaveTriggered();toast('재박제를 시작했습니다');}
+  catch(e){toast('수정 저장 실패');}
+}
+
+async function deleteCard(id){
+  if(!confirm('이 박제를 삭제하시겠습니까?\n(archive.org 사본은 그대로 남고, 이 목록에서만 제거됩니다)'))return;
+  const c=db.cards.find(x=>x.id===id);if(!c)return;
+  if(c.sbId){try{await deleteCardRemote(c.sbId);}catch(e){toast('삭제 실패');return;}}
+  db.cards=db.cards.filter(x=>x.id!==id);
+  if(state.editId===id)exitEditMode();
+  render();toast('삭제됨');
+}
+
+// ── 입력 영역 ──
+function clearInput(){
+  g('url-input').value='';g('title-input').value='';g('note-input').value='';
+  state.tempTags=[];renderTempTags();
+}
+function enterEditMode(id){
+  const c=db.cards.find(x=>x.id===id);if(!c)return;
+  state.editId=id;
+  g('url-input').value=c.url||'';g('title-input').value=c.title||'';g('note-input').value=c.note||'';
+  state.tempTags=[...(c.tags||[])];renderTempTags();
+  g('in-mode-label').textContent='박제 수정';
+  g('edit-badge').style.display='inline-block';
+  g('edit-actions').style.display='flex';
+  updateArchiveBtn();
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>g('title-input').focus(),300);
+}
+function exitEditMode(){
+  state.editId=null;
+  g('in-mode-label').textContent='새 박제';
+  g('edit-badge').style.display='none';
+  g('edit-actions').style.display='none';
+  updateArchiveBtn();clearInput();
+}
+async function saveEditOnly(){
+  if(!state.editId)return;
+  const c=db.cards.find(x=>x.id===state.editId);if(!c)return;
+  c.url=g('url-input').value.trim();c.title=g('title-input').value.trim();
+  c.note=g('note-input').value.trim();c.tags=[...state.tempTags];
+  try{await updateCard(c);render();exitEditMode();toast('메모가 저장되었습니다');}
+  catch(e){toast('저장 실패');}
+}
+
+// ── 태그 칩 ──
+function renderTempTags(){
+  const row=g('tagrow');
+  const chips=state.tempTags.map(t=>`<span class="tag-chip">#${eh(t)}<button class="tag-x" data-tag="${eh(t)}" title="제거">✕</button></span>`).join('');
+  row.innerHTML=`<span class="tag-prefix">#</span>${chips}<input id="tag-input" type="text" placeholder="${state.tempTags.length?'추가...':'태그 입력 후 Enter'}">`;
+  row.querySelectorAll('.tag-x').forEach(b=>{
+    b.addEventListener('click',()=>{state.tempTags=state.tempTags.filter(x=>x!==b.dataset.tag);renderTempTags();});
+  });
+  bindTagInput();
+}
+function bindTagInput(){
+  const i=g('tag-input');if(!i)return;
+  i.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===','){
+      e.preventDefault();const v=i.value.trim().replace(/^#/,'');
+      if(v&&!state.tempTags.includes(v)){state.tempTags.push(v);renderTempTags();setTimeout(()=>g('tag-input').focus(),0);}
+      else{i.value='';}
+    }else if(e.key==='Backspace'&&!i.value&&state.tempTags.length){
+      state.tempTags.pop();renderTempTags();setTimeout(()=>g('tag-input').focus(),0);
+    }
+  });
+}
+
+// ── 필터링 / 정렬 ──
+function filtered(){
+  let c=[...db.cards];
+  if(state.filterTag)c=c.filter(x=>(x.tags||[]).includes(state.filterTag));
+  if(state.search){
+    const q=state.search.toLowerCase();
+    c=c.filter(x=>(x.title||'').toLowerCase().includes(q)||(x.url||'').toLowerCase().includes(q)||(x.note||'').toLowerCase().includes(q)||(x.tags||[]).some(t=>t.toLowerCase().includes(q)));
+  }
+  if(state.sort==='archived')c.sort((a,b)=>(b.archived||0)-(a.archived||0));
+  else if(state.sort==='created')c.sort((a,b)=>(b.created||0)-(a.created||0));
+  else if(state.sort==='title')c.sort((a,b)=>(a.title||'').localeCompare(b.title||'','ko'));
+  return c;
+}
+
+// ── 렌더링 ──
+function renderStats(){g('stat-total').textContent=db.cards.length;}
+function renderTagFilter(){
+  const all=new Set();db.cards.forEach(c=>(c.tags||[]).forEach(t=>all.add(t)));
+  const tags=[...all].sort((a,b)=>a.localeCompare(b,'ko'));
+  const cont=g('filter-tags');
+  if(!tags.length){cont.innerHTML='';return;}
+  cont.innerHTML=tags.map(t=>`<button class="fl-tag${state.filterTag===t?' active':''}" data-tag="${eh(t)}">#${eh(t)}</button>`).join('');
+  cont.querySelectorAll('.fl-tag').forEach(b=>{
+    b.addEventListener('click',()=>{state.filterTag=state.filterTag===b.dataset.tag?null:b.dataset.tag;render();});
+  });
+}
+function renderCards(){
+  const cards=filtered();const cont=g('cards');
+  if(!cards.length){
+    const msg=db.cards.length
+      ?{ic:'🔍',t:'검색 결과가 없습니다',d:'다른 검색어로 시도해 보세요'}
+      :{ic:'📭',t:'아직 박제한 페이지가 없습니다',d:'위에 URL을 입력하고 「박제하기」를 눌러보세요'};
+    cont.innerHTML=`<div class="empty"><div class="empty-ic">${msg.ic}</div><div class="empty-t">${msg.t}</div><div class="empty-d">${msg.d}</div></div>`;
+    return;
+  }
+  cont.innerHTML=cards.map(c=>{
+    const fav=favicon(c.url);
+    const tags=(c.tags||[]).slice(0,6).map(t=>`<span class="card-tag">#${eh(t)}</span>`).join('');
+    return`<div class="card" data-id="${c.id}">
+      <div class="card-hd">
+        ${fav?`<img class="card-fav" src="${fav}" alt="" onerror="this.style.display='none'">`:'<div style="width:14px;flex-shrink:0"></div>'}
+        <span class="card-dom">${eh(domain(c.url))||'(URL 없음)'}</span>
+        <span class="card-st ok">보존됨</span>
+      </div>
+      <div class="card-title">${eh(c.title)||'<span class="nullt">(제목 없음)</span>'}</div>
+      ${c.note?`<div class="card-note">${eh(c.note)}</div>`:''}
+      ${tags?`<div class="card-tags">${tags}</div>`:''}
+      <div class="card-foot">
+        <div class="card-date"><span title="박제 시점">🏛 ${fmtDate(c.archived)}</span></div>
+        <div class="card-btns">
+          ${c.url?`<button class="card-btn" title="원본 페이지 열기" data-act="open">↗</button>`:''}
+          ${c.archiveUrl?`<button class="card-btn go-archive" title="archive.org 사본 열기" data-act="archive">🏛</button>`:''}
+          <button class="card-btn" title="수정" data-act="edit">✏</button>
+          <button class="card-btn" title="다시 박제" data-act="re">🔄</button>
+          <button class="card-btn del" title="삭제" data-act="del">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  cont.querySelectorAll('.card').forEach(el=>{
+    const id=parseInt(el.dataset.id);
+    el.querySelectorAll('.card-btn').forEach(b=>{
+      b.addEventListener('click',e=>{
+        e.stopPropagation();
+        const c=db.cards.find(x=>x.id===id);if(!c)return;
+        const act=b.dataset.act;
+        if(act==='open'&&c.url)window.open(c.url,'_blank','noopener');
+        else if(act==='archive'&&c.archiveUrl)window.open(c.archiveUrl,'_blank','noopener');
+        else if(act==='edit')enterEditMode(id);
+        else if(act==='re')reArchive(id);
+        else if(act==='del')deleteCard(id);
+      });
+    });
+  });
+}
+function render(){renderStats();renderTagFilter();renderCards();}
+
+// ── 이벤트 바인딩 ──
+function bindEvents(){
+  g('archive-btn').addEventListener('click',handleArchive);
+  g('save-edit-btn').addEventListener('click',saveEditOnly);
+  g('cancel-edit-btn').addEventListener('click',exitEditMode);
+  g('logout-btn').addEventListener('click',logout);
+  g('login-btn').addEventListener('click',()=>{
+    const inputs=[g('pin0'),g('pin1'),g('pin2'),g('pin3')];
+    attemptLogin(inputs);
+  });
+  g('search-input').addEventListener('input',e=>{
+    state.search=e.target.value;
+    g('search-clear').classList.toggle('show',!!state.search);renderCards();
+  });
+  g('search-clear').addEventListener('click',()=>{
+    g('search-input').value='';state.search='';
+    g('search-clear').classList.remove('show');renderCards();g('search-input').focus();
+  });
+  document.querySelectorAll('.fl-sort button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.fl-sort button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');state.sort=b.dataset.sort;renderCards();
+    });
+  });
+  g('url-input').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();handleArchive();}});
+  bindTagInput();
+}
+
+// ══ 시작 ══
+document.addEventListener('DOMContentLoaded',initLogin);
+</script>
+</body>
+</html>
