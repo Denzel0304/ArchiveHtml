@@ -16,7 +16,6 @@
   --green:#16a34a;--green-bg:rgba(22,163,74,0.08);
   --amber:#b45309;--amber-bg:rgba(180,83,9,0.08);
   --red:#dc2626;--red-bg:rgba(220,38,38,0.08);
-  --purple:#7c3aed;--purple-bg:rgba(124,58,237,0.08);
   --radius:8px;--font:'Noto Sans KR',sans-serif;--mono:'JetBrains Mono',monospace;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -24,44 +23,24 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 .wrap{max-width:1120px;margin:0 auto;padding:24px 22px 50px}
 
 /* ── 로그인 화면 ── */
-#login-screen{
-  position:fixed;inset:0;background:var(--bg);z-index:999;
-  display:flex;align-items:center;justify-content:center;
-}
-.login-box{
-  background:var(--bg2);border:1px solid var(--border);border-radius:12px;
-  padding:36px 32px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.08);
-  display:flex;flex-direction:column;gap:18px;
-}
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:36px 32px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,0.08);display:flex;flex-direction:column;gap:18px;}
 .login-title{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;letter-spacing:-.3px}
 .login-sub{font-size:12px;color:var(--text3);margin-top:-10px}
 .login-field label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;display:block;margin-bottom:6px}
 .pin-row{display:flex;gap:10px;justify-content:center}
-.pin-row input{
-  width:56px;height:64px;text-align:center;font-size:28px;font-family:var(--mono);
-  font-weight:700;background:var(--bg3);border:2px solid var(--border);
-  border-radius:8px;color:var(--text);outline:none;caret-color:transparent;
-  transition:border .15s,background .15s;
-  -webkit-text-security:disc;
-}
+.pin-row input{width:56px;height:64px;text-align:center;font-size:28px;font-family:var(--mono);font-weight:700;background:var(--bg3);border:2px solid var(--border);border-radius:8px;color:var(--text);outline:none;caret-color:transparent;transition:border .15s,background .15s;-webkit-text-security:disc;}
 .pin-row input:focus{border-color:var(--accent-border);background:var(--accent-bg)}
 .pin-row input.filled{border-color:var(--border2)}
-#login-error{
-  font-size:12px;color:var(--red);background:var(--red-bg);border:1px solid rgba(220,38,38,0.15);
-  border-radius:6px;padding:8px 12px;display:none;text-align:center;
-}
+#login-error{font-size:12px;color:var(--red);background:var(--red-bg);border:1px solid rgba(220,38,38,0.15);border-radius:6px;padding:8px 12px;display:none;text-align:center;}
 #login-error.show{display:block}
-.btn-login{
-  background:var(--accent);color:#fff;border:none;border-radius:8px;
-  padding:12px;font-family:var(--font);font-size:14px;font-weight:600;
-  cursor:pointer;transition:background .15s;width:100%;
-}
+.btn-login{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:12px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;width:100%;}
 .btn-login:hover{background:var(--accent2)}
 .btn-login:disabled{background:var(--text3);cursor:not-allowed}
 .login-lock-msg{font-size:12px;color:var(--amber);background:var(--amber-bg);border-radius:6px;padding:8px 12px;text-align:center;display:none}
 .login-lock-msg.show{display:block}
 
-/* ── 메인 앱 (로그인 전에는 숨김) ── */
+/* ── 메인 앱 ── */
 #app{display:none}
 #app.ready{display:block}
 
@@ -168,7 +147,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:var(--border2)}
 
-@media (max-width:680px){
+@media(max-width:680px){
   .metarow{grid-template-columns:1fr}
   .hd{flex-direction:column;align-items:flex-start}
   .hd-stats{font-size:11px}
@@ -193,7 +172,7 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
         <input type="password" inputmode="numeric" maxlength="1" id="pin3" autocomplete="off">
       </div>
     </div>
-    <div id="login-error" class=""></div>
+    <div id="login-error"></div>
     <div id="login-lock-msg" class="login-lock-msg"></div>
     <button class="btn-login" id="login-btn">잠금 해제</button>
   </div>
@@ -202,7 +181,6 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 <!-- ══ 메인 앱 ══ -->
 <div id="app">
 <div class="wrap">
-
   <div class="hd">
     <div class="hd-l">
       <span class="hd-ic">🏛️</span>
@@ -259,7 +237,6 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
   </div>
   <div id="filter-tags"></div>
   <div class="cards" id="cards"></div>
-
 </div>
 </div>
 
@@ -267,19 +244,19 @@ html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-si
 
 <script>
 // ══════════════════════════════════════════════════════════
-// zHtml79 — 접두사 상수 (다른 앱과 충돌 방지)
+// 상수 — 접두사 zHtml79_ (다른 앱과 충돌 방지)
 // ══════════════════════════════════════════════════════════
 const Z = {
-  LS_SESSION : 'zHtml79_session',   // 로컬스토리지: 잠금 상태 (있으면 자동로그인)
-  LS_FIXED_KEY:'zHtml79_fixedKey',  // 로컬스토리지: 영구 고정 UUID (절대 바뀌지 않음)
-  LS_LOCK    : 'zHtml79_lockUntil', // 로컬스토리지: 잠금 해제 시각
-  LS_FAILS   : 'zHtml79_failCount', // 로컬스토리지: 연속 실패 횟수
-  PIN_HASH   : 'zHtml79_pinHash',   // 로컬스토리지: PIN 해시
-  SUPABASE_URL : 'https://zkkhzsgaryoraytvsqbf.supabase.co',
-  SUPABASE_KEY : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpra2h6c2dhcnlvcmF5dHZzcWJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc5ODM5OTcsImV4cCI6MjA1MzU1OTk5N30.UJtqcka35dVssnZRuUk6zukfjF9UNX392Shd841GSQk',
-  TABLE      : 'zHtml',
-  MAX_FAILS  : 5,
-  LOCK_MS    : 10 * 60 * 1000,      // 10분
+  LS_UNLOCKED : 'zHtml79_unlocked',  // 잠금 해제 플래그 (값은 의미없음, 존재 여부만)
+  LS_LOCK     : 'zHtml79_lockUntil', // 브루트포스 잠금 해제 시각
+  LS_FAILS    : 'zHtml79_failCount', // 연속 실패 횟수
+  // ↑ 로컬스토리지에는 이 3개만 저장. PIN·키는 일절 저장하지 않음.
+  SUPABASE_URL: 'https://zkkhzsgaryoraytvsqbf.supabase.co',
+  SUPABASE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpra2h6c2dhcnlvcmF5dHZzcWJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc5ODM5OTcsImV4cCI6MjA1MzU1OTk5N30.UJtqcka35dVssnZRuUk6zukfjF9UNX392Shd841GSQk',
+  TABLE       : 'zHtml',
+  CONFIG_ID   : -1,     // PIN 해시를 보관하는 설정 row의 client_id
+  MAX_FAILS   : 5,
+  LOCK_MS     : 10 * 60 * 1000,
 };
 
 // ══════════════════════════════════════════════════════════
@@ -293,86 +270,116 @@ function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return`${d.getFullYea
 function toast(msg,dur=2200){const t=g('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
 function makeWildcardArchiveUrl(url){return`https://web.archive.org/web/${url}`;}
 
-// 간단한 해시 (PIN 검증용 — 실제 암호화 아님, 단독 기기 PIN 체크용)
-async function hashPin(pin){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('zHtml79_salt_'+pin));
+// PIN → SHA-256 해시 (salt 포함) → 이것이 RLS 키이자 세션 키
+// 같은 PIN이면 어느 기기에서든 항상 동일한 값
+async function pinToKey(pin){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('zHtml79_v2_'+pin));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-// UUID v4
-function uuidv4(){
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
-}
+// ══════════════════════════════════════════════════════════
+// 세션 (메모리에만 보관)
+// ══════════════════════════════════════════════════════════
+let sessionKey = null; // PIN 해시값. 메모리에만 존재, 로컬스토리지에 저장 안 함
 
 // ══════════════════════════════════════════════════════════
-// 로그인 / 잠금 시스템
+// 브루트포스 방어 (로컬스토리지)
 // ══════════════════════════════════════════════════════════
-let sessionKey = null; // 인증된 세션 UUID (항상 동일한 고정값)
-
-// 고정 키: 최초 1회 생성 후 절대 변경하지 않음 — Supabase RLS의 기준값
-function getOrCreateFixedKey(){
-  let k=localStorage.getItem(Z.LS_FIXED_KEY);
-  if(!k){k=uuidv4();localStorage.setItem(Z.LS_FIXED_KEY,k);}
-  return k;
-}
-// 세션 플래그: 잠금/해제 상태만 관리 (키 자체는 아님)
-function getSessionFlag(){return localStorage.getItem(Z.LS_SESSION);}
-function setSessionFlag(){localStorage.setItem(Z.LS_SESSION,'1');}
-function clearSessionFlag(){localStorage.removeItem(Z.LS_SESSION);sessionKey=null;}
-
 function getLockUntil(){return parseInt(localStorage.getItem(Z.LS_LOCK)||'0');}
 function getFailCount(){return parseInt(localStorage.getItem(Z.LS_FAILS)||'0');}
 function setFailCount(n){localStorage.setItem(Z.LS_FAILS,String(n));}
 function setLock(){localStorage.setItem(Z.LS_LOCK,String(Date.now()+Z.LOCK_MS));}
 function clearLock(){localStorage.removeItem(Z.LS_LOCK);localStorage.removeItem(Z.LS_FAILS);}
-
 function isLocked(){
-  const until=getLockUntil();
-  if(until>Date.now())return until;
-  if(until&&until<=Date.now())clearLock();
+  const u=getLockUntil();
+  if(u>Date.now())return u;
+  if(u)clearLock();
   return false;
 }
 
+let lockInterval=null;
 function showLockMsg(until){
-  const rem=Math.ceil((until-Date.now())/1000);
-  const m=Math.floor(rem/60),s=rem%60;
   const lm=g('login-lock-msg');
-  lm.textContent=`로그인 5회 실패 — ${m}분 ${s}초 후 다시 시도하세요`;
-  lm.classList.add('show');
   g('login-btn').disabled=true;
   g('login-error').classList.remove('show');
-  // 1초마다 갱신
-  clearInterval(lockInterval);
-  lockInterval=setInterval(()=>{
+  const tick=()=>{
     const r=Math.ceil((getLockUntil()-Date.now())/1000);
     if(r<=0){clearInterval(lockInterval);lm.classList.remove('show');g('login-btn').disabled=false;return;}
-    const mm=Math.floor(r/60),ss=r%60;
-    lm.textContent=`로그인 5회 실패 — ${mm}분 ${ss}초 후 다시 시도하세요`;
-  },1000);
+    lm.textContent=`로그인 ${Z.MAX_FAILS}회 실패 — ${Math.floor(r/60)}분 ${r%60}초 후 다시 시도`;
+    lm.classList.add('show');
+  };
+  tick();
+  clearInterval(lockInterval);
+  lockInterval=setInterval(tick,1000);
 }
-let lockInterval=null;
+
+// ══════════════════════════════════════════════════════════
+// Supabase API (anon key + x-zhtml79-key RLS 헤더)
+// ══════════════════════════════════════════════════════════
+function supaHeaders(extra={}){
+  return{
+    'Content-Type'  :'application/json',
+    'apikey'        :Z.SUPABASE_KEY,
+    'Authorization' :'Bearer '+Z.SUPABASE_KEY,
+    'x-zhtml79-key' :sessionKey,   // RLS 검증 — 이 헤더 없으면 anon은 아무것도 못함
+    'Prefer'        :'return=representation',
+    ...extra,
+  };
+}
+
+async function sbFetch(path,opts={}){
+  const res=await fetch(Z.SUPABASE_URL+'/rest/v1/'+path,{
+    ...opts,
+    headers:{...supaHeaders(),...(opts.headers||{})},
+  });
+  if(!res.ok)throw new Error(await res.text());
+  const txt=await res.text();
+  return txt?JSON.parse(txt):[];
+}
+
+// ── PIN 검증: Supabase의 설정 row에서 해시 비교 ──
+// 설정 row: client_id = -1, session_key = PIN해시, url = '__config__'
+async function verifyPinRemote(hash){
+  // x-zhtml79-key 없이 조회 (설정 row는 별도 policy로 공개 조회 허용)
+  const res=await fetch(
+    Z.SUPABASE_URL+`/rest/v1/${Z.TABLE}?client_id=eq.${Z.CONFIG_ID}&select=session_key`,
+    {headers:{'apikey':Z.SUPABASE_KEY,'Authorization':'Bearer '+Z.SUPABASE_KEY}}
+  );
+  if(!res.ok)throw new Error('Supabase 연결 실패');
+  const rows=await res.json();
+  if(!rows.length)return 'no_config'; // PIN 미등록
+  return rows[0].session_key===hash?'ok':'fail';
+}
+
+// ══════════════════════════════════════════════════════════
+// 로그인 흐름
+// ══════════════════════════════════════════════════════════
+function showError(msg){
+  const el=g('login-error');
+  el.textContent=msg;
+  el.style.cssText='';
+  el.classList.add('show');
+}
+function showInfo(msg){
+  const el=g('login-error');
+  el.textContent=msg;
+  el.style.background='var(--accent-bg)';
+  el.style.color='var(--accent)';
+  el.style.borderColor='var(--accent-border)';
+  el.style.display='block';
+}
 
 async function initLogin(){
-  // 세션 플래그가 있으면 (잠금 안 된 상태) 바로 앱으로
-  if(getSessionFlag()){
-    sessionKey=getOrCreateFixedKey();
+  // 잠금 확인
+  const lu=isLocked();
+  if(lu)showLockMsg(lu);
+  // 자동 로그인: 이 탭/세션에 이미 키가 있으면 (sessionStorage 활용)
+  const cached=sessionStorage.getItem('zHtml79_sk');
+  if(cached){
+    sessionKey=cached;
     await bootApp();
     return;
   }
-  // PIN이 설정된 적 없으면 최초 설정 모드
-  const hasPin=!!localStorage.getItem(Z.PIN_HASH);
-  if(!hasPin){
-    g('login-error').textContent='최초 실행: PIN을 설정합니다. 4자리 숫자를 입력하세요.';
-    g('login-error').style.background='var(--accent-bg)';
-    g('login-error').style.color='var(--accent)';
-    g('login-error').style.borderColor='var(--accent-border)';
-    g('login-error').classList.add('show');
-    g('login-btn').textContent='PIN 설정';
-  }
-  // 잠금 상태 확인
-  const lockUntil=isLocked();
-  if(lockUntil)showLockMsg(lockUntil);
-  // 로그인 화면 표시
   g('login-screen').style.display='flex';
   setupPinInputs();
 }
@@ -382,61 +389,62 @@ function setupPinInputs(){
   inputs.forEach((inp,i)=>{
     inp.addEventListener('input',()=>{
       inp.value=inp.value.replace(/\D/g,'').slice(-1);
-      if(inp.value)inp.classList.add('filled'); else inp.classList.remove('filled');
+      inp.classList.toggle('filled',!!inp.value);
       if(inp.value&&i<3)inputs[i+1].focus();
       if(i===3&&inp.value)attemptLogin(inputs);
     });
     inp.addEventListener('keydown',e=>{
-      if(e.key==='Backspace'&&!inp.value&&i>0){inputs[i-1].focus();}
-      if(e.key==='Enter'){attemptLogin(inputs);}
+      if(e.key==='Backspace'&&!inp.value&&i>0)inputs[i-1].focus();
+      if(e.key==='Enter')attemptLogin(inputs);
     });
     inp.addEventListener('paste',e=>{
       e.preventDefault();
-      const pasted=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
-      pasted.split('').forEach((ch,j)=>{if(inputs[j]){inputs[j].value=ch;inputs[j].classList.add('filled');}});
-      if(pasted.length===4)attemptLogin(inputs);
+      const p=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,4);
+      p.split('').forEach((ch,j)=>{if(inputs[j]){inputs[j].value=ch;inputs[j].classList.add('filled');}});
+      if(p.length===4)attemptLogin(inputs);
     });
   });
   setTimeout(()=>inputs[0].focus(),100);
 }
 
 async function attemptLogin(inputs){
-  if(isLocked()){return;}
+  if(isLocked())return;
   const pin=inputs.map(i=>i.value).join('');
-  if(pin.length<4){
-    g('login-error').textContent='4자리를 모두 입력하세요';
-    g('login-error').classList.add('show');
-    return;
-  }
-  const hash=await hashPin(pin);
-  const storedHash=localStorage.getItem(Z.PIN_HASH);
-  if(!storedHash){
-    // 최초 PIN 설정 — 고정 키도 이때 생성
-    localStorage.setItem(Z.PIN_HASH,hash);
-    sessionKey=getOrCreateFixedKey();
-    setSessionFlag();
-    await bootApp();
-    return;
-  }
-  if(hash===storedHash){
-    clearLock();
-    // 고정 키 재사용 (절대 새로 만들지 않음)
-    sessionKey=getOrCreateFixedKey();
-    setSessionFlag();
-    await bootApp();
-  }else{
-    const fails=getFailCount()+1;
-    setFailCount(fails);
-    if(fails>=Z.MAX_FAILS){
-      setLock();
-      showLockMsg(getLockUntil());
-    }else{
-      g('login-error').textContent=`PIN이 틀렸습니다 (${fails}/${Z.MAX_FAILS}회 실패)`;
-      g('login-error').style.background='';g('login-error').style.color='';g('login-error').style.borderColor='';
-      g('login-error').classList.add('show');
-      inputs.forEach(i=>{i.value='';i.classList.remove('filled');});
-      inputs[0].focus();
+  if(pin.length<4){showError('4자리를 모두 입력하세요');return;}
+  g('login-btn').disabled=true;
+  g('login-btn').textContent='확인 중...';
+  try{
+    const hash=await pinToKey(pin);
+    const result=await verifyPinRemote(hash);
+    if(result==='no_config'){
+      // PIN 미등록 상태 안내
+      showError('PIN이 등록되지 않았습니다. Supabase SQL로 먼저 등록해 주세요.');
+      g('login-btn').disabled=false;
+      g('login-btn').textContent='잠금 해제';
+      return;
     }
+    if(result==='ok'){
+      clearLock();
+      sessionKey=hash;
+      // sessionStorage에만 저장 — 탭 닫으면 사라짐 (보안), 새로고침엔 유지
+      sessionStorage.setItem('zHtml79_sk',hash);
+      await bootApp();
+    }else{
+      const fails=getFailCount()+1;
+      setFailCount(fails);
+      if(fails>=Z.MAX_FAILS){setLock();showLockMsg(getLockUntil());}
+      else{
+        showError(`PIN이 틀렸습니다 (${fails}/${Z.MAX_FAILS}회 실패)`);
+        inputs.forEach(i=>{i.value='';i.classList.remove('filled');});
+        inputs[0].focus();
+      }
+      g('login-btn').disabled=false;
+      g('login-btn').textContent='잠금 해제';
+    }
+  }catch(e){
+    showError('Supabase 연결 오류 — 네트워크를 확인하세요');
+    g('login-btn').disabled=false;
+    g('login-btn').textContent='잠금 해제';
   }
 }
 
@@ -450,66 +458,42 @@ async function bootApp(){
 }
 
 function logout(){
-  clearSessionFlag(); // 세션 플래그만 지움 — 고정 키(zHtml79_fixedKey)는 유지
+  sessionKey=null;
+  sessionStorage.removeItem('zHtml79_sk');
   location.reload();
 }
 
 // ══════════════════════════════════════════════════════════
-// Supabase API
+// Supabase CRUD
 // ══════════════════════════════════════════════════════════
-function supaHeaders(){
-  return{
-    'Content-Type':'application/json',
-    'apikey':Z.SUPABASE_KEY,
-    'Authorization':'Bearer '+Z.SUPABASE_KEY,
-    'x-zhtml79-key':sessionKey,         // RLS 검증 헤더
-    'Prefer':'return=representation',
-  };
+function setSyncStatus(s,msg){
+  g('sync-dot').className='sync-dot '+s;
+  g('sync-msg').textContent=msg;
 }
 
-async function sbFetch(path,opts={}){
-  const url=Z.SUPABASE_URL+'/rest/v1/'+path;
-  const res=await fetch(url,{...opts,headers:{...supaHeaders(),...(opts.headers||{})}});
-  if(!res.ok){
-    const err=await res.text();
-    throw new Error(err);
-  }
-  const text=await res.text();
-  return text?JSON.parse(text):[];
-}
-
-function setSyncStatus(state,msg){
-  const dot=g('sync-dot'),sm=g('sync-msg');
-  dot.className='sync-dot '+state;
-  sm.textContent=msg;
-}
-
-// ── 카드 목록 조회 ──
+// 카드 목록 조회 (설정 row client_id=-1 제외)
 async function loadFromSupabase(){
   try{
-    const rows=await sbFetch(`${Z.TABLE}?select=*&order=archived_at.desc`);
+    const rows=await sbFetch(`${Z.TABLE}?select=*&client_id=neq.${Z.CONFIG_ID}&order=archived_at.desc`);
     db.cards=rows.map(rowToCard);
     setSyncStatus('ok',`Supabase 연결됨 · ${db.cards.length}개`);
   }catch(e){
-    setSyncStatus('err','Supabase 오류 — 로컬 캐시 사용');
+    setSyncStatus('err','Supabase 오류');
     console.error(e);
   }
 }
 
-// ── DB 행 ↔ 카드 변환 ──
 function rowToCard(r){
   return{
-    id       :r.id,
-    client_id:r.client_id||r.id,
-    url      :r.url||'',
-    title    :r.title||'',
-    note     :r.note||'',
-    tags     :r.tags||[],
+    id        :r.id,
+    url       :r.url||'',
+    title     :r.title||'',
+    note      :r.note||'',
+    tags      :r.tags||[],
     archiveUrl:r.archive_url||'',
-    created  :r.created_at||Date.now(),
-    archived :r.archived_at||Date.now(),
-    status   :'ok',
-    sbId     :r.id,
+    created   :r.created_at||Date.now(),
+    archived  :r.archived_at||Date.now(),
+    sbId      :r.id,
   };
 }
 
@@ -523,58 +507,35 @@ function cardToRow(card){
     archive_url:card.archiveUrl||'',
     created_at :card.created||Date.now(),
     archived_at:card.archived||Date.now(),
-    client_id  :card.client_id||null,
   };
 }
 
-// ── INSERT ──
 async function insertCard(card){
   setSyncStatus('loading','저장 중...');
   try{
-    const rows=await sbFetch(`${Z.TABLE}`,{
-      method:'POST',
-      body:JSON.stringify(cardToRow(card)),
-    });
-    const inserted=Array.isArray(rows)?rows[0]:rows;
-    card.sbId=inserted.id;
-    card.id=inserted.id;
+    const rows=await sbFetch(Z.TABLE,{method:'POST',body:JSON.stringify(cardToRow(card))});
+    const ins=Array.isArray(rows)?rows[0]:rows;
+    card.sbId=ins.id;card.id=ins.id;
     setSyncStatus('ok','저장됨');
     return card;
-  }catch(e){
-    setSyncStatus('err','저장 실패');
-    console.error(e);
-    throw e;
-  }
+  }catch(e){setSyncStatus('err','저장 실패');throw e;}
 }
 
-// ── UPDATE ──
 async function updateCard(card){
-  if(!card.sbId){await insertCard(card);return;}
+  if(!card.sbId){return insertCard(card);}
   setSyncStatus('loading','수정 중...');
   try{
-    await sbFetch(`${Z.TABLE}?id=eq.${card.sbId}`,{
-      method:'PATCH',
-      body:JSON.stringify(cardToRow(card)),
-    });
+    await sbFetch(`${Z.TABLE}?id=eq.${card.sbId}`,{method:'PATCH',body:JSON.stringify(cardToRow(card))});
     setSyncStatus('ok','수정됨');
-  }catch(e){
-    setSyncStatus('err','수정 실패');
-    console.error(e);
-    throw e;
-  }
+  }catch(e){setSyncStatus('err','수정 실패');throw e;}
 }
 
-// ── DELETE ──
 async function deleteCardRemote(sbId){
   setSyncStatus('loading','삭제 중...');
   try{
     await sbFetch(`${Z.TABLE}?id=eq.${sbId}`,{method:'DELETE',headers:{'Prefer':''}});
     setSyncStatus('ok','삭제됨');
-  }catch(e){
-    setSyncStatus('err','삭제 실패');
-    console.error(e);
-    throw e;
-  }
+  }catch(e){setSyncStatus('err','삭제 실패');throw e;}
 }
 
 // ══════════════════════════════════════════════════════════
@@ -584,7 +545,6 @@ let db={cards:[]};
 let state={editId:null,tempTags:[],search:'',sort:'archived',filterTag:null,lastSaveAt:0,cooldownTimer:null};
 const COOLDOWN_MS=30000;
 
-// ── 쿨다운 ──
 function cooldownLeft(){return state.lastSaveAt?Math.max(0,COOLDOWN_MS-(Date.now()-state.lastSaveAt)):0;}
 function updateArchiveBtn(){
   const btn=g('archive-btn'),lbl=g('archive-btn-label'),left=cooldownLeft();
@@ -601,7 +561,7 @@ function updateArchiveBtn(){
 function markSaveTriggered(){state.lastSaveAt=Date.now();updateArchiveBtn();}
 function triggerSaveTab(url){window.open(`https://web.archive.org/save/${url}`,'_blank','noopener');}
 
-// ── 메인 액션: 박제 ──
+// ── 박제 ──
 async function handleArchive(){
   const url=g('url-input').value.trim();
   if(!url){toast('URL을 입력해 주세요');return;}
@@ -615,15 +575,14 @@ async function handleArchive(){
   triggerSaveTab(url);
   markSaveTriggered();
   if(state.editId){
-    const card=db.cards.find(c=>c.id===state.editId);
-    if(!card)return;
+    const card=db.cards.find(c=>c.id===state.editId);if(!card)return;
     card.url=url;card.title=title;card.note=note;card.tags=tags;
     card.archived=now;card.archiveUrl=makeWildcardArchiveUrl(url);
     try{await updateCard(card);toast('박제 갱신을 시작했습니다');}
     catch(e){toast('수정 저장 실패');}
     exitEditMode();
   }else{
-    const card={url,title,note,tags,created:now,archived:now,status:'ok',archiveUrl:makeWildcardArchiveUrl(url)};
+    const card={url,title,note,tags,created:now,archived:now,archiveUrl:makeWildcardArchiveUrl(url)};
     try{
       const saved=await insertCard(card);
       db.cards.unshift(saved);
@@ -685,10 +644,10 @@ async function saveEditOnly(){
   catch(e){toast('저장 실패');}
 }
 
-// ── 태그 칩 ──
+// ── 태그 ──
 function renderTempTags(){
   const row=g('tagrow');
-  const chips=state.tempTags.map(t=>`<span class="tag-chip">#${eh(t)}<button class="tag-x" data-tag="${eh(t)}" title="제거">✕</button></span>`).join('');
+  const chips=state.tempTags.map(t=>`<span class="tag-chip">#${eh(t)}<button class="tag-x" data-tag="${eh(t)}">✕</button></span>`).join('');
   row.innerHTML=`<span class="tag-prefix">#</span>${chips}<input id="tag-input" type="text" placeholder="${state.tempTags.length?'추가...':'태그 입력 후 Enter'}">`;
   row.querySelectorAll('.tag-x').forEach(b=>{
     b.addEventListener('click',()=>{state.tempTags=state.tempTags.filter(x=>x!==b.dataset.tag);renderTempTags();});
@@ -700,15 +659,15 @@ function bindTagInput(){
   i.addEventListener('keydown',e=>{
     if(e.key==='Enter'||e.key===','){
       e.preventDefault();const v=i.value.trim().replace(/^#/,'');
-      if(v&&!state.tempTags.includes(v)){state.tempTags.push(v);renderTempTags();setTimeout(()=>g('tag-input').focus(),0);}
-      else{i.value='';}
+      if(v&&!state.tempTags.includes(v)){state.tempTags.push(v);renderTempTags();setTimeout(()=>g('tag-input')?.focus(),0);}
+      else i.value='';
     }else if(e.key==='Backspace'&&!i.value&&state.tempTags.length){
-      state.tempTags.pop();renderTempTags();setTimeout(()=>g('tag-input').focus(),0);
+      state.tempTags.pop();renderTempTags();setTimeout(()=>g('tag-input')?.focus(),0);
     }
   });
 }
 
-// ── 필터링 / 정렬 ──
+// ── 필터/정렬 ──
 function filtered(){
   let c=[...db.cards];
   if(state.filterTag)c=c.filter(x=>(x.tags||[]).includes(state.filterTag));
@@ -735,7 +694,7 @@ function renderTagFilter(){
   });
 }
 function renderCards(){
-  const cards=filtered();const cont=g('cards');
+  const cards=filtered(),cont=g('cards');
   if(!cards.length){
     const msg=db.cards.length
       ?{ic:'🔍',t:'검색 결과가 없습니다',d:'다른 검색어로 시도해 보세요'}
@@ -758,8 +717,8 @@ function renderCards(){
       <div class="card-foot">
         <div class="card-date"><span title="박제 시점">🏛 ${fmtDate(c.archived)}</span></div>
         <div class="card-btns">
-          ${c.url?`<button class="card-btn" title="원본 페이지 열기" data-act="open">↗</button>`:''}
-          ${c.archiveUrl?`<button class="card-btn go-archive" title="archive.org 사본 열기" data-act="archive">🏛</button>`:''}
+          ${c.url?`<button class="card-btn" title="원본" data-act="open">↗</button>`:''}
+          ${c.archiveUrl?`<button class="card-btn go-archive" title="archive.org 사본" data-act="archive">🏛</button>`:''}
           <button class="card-btn" title="수정" data-act="edit">✏</button>
           <button class="card-btn" title="다시 박제" data-act="re">🔄</button>
           <button class="card-btn del" title="삭제" data-act="del">🗑</button>
@@ -791,10 +750,7 @@ function bindEvents(){
   g('save-edit-btn').addEventListener('click',saveEditOnly);
   g('cancel-edit-btn').addEventListener('click',exitEditMode);
   g('logout-btn').addEventListener('click',logout);
-  g('login-btn').addEventListener('click',()=>{
-    const inputs=[g('pin0'),g('pin1'),g('pin2'),g('pin3')];
-    attemptLogin(inputs);
-  });
+  g('login-btn').addEventListener('click',()=>attemptLogin([g('pin0'),g('pin1'),g('pin2'),g('pin3')]));
   g('search-input').addEventListener('input',e=>{
     state.search=e.target.value;
     g('search-clear').classList.toggle('show',!!state.search);renderCards();
@@ -813,7 +769,6 @@ function bindEvents(){
   bindTagInput();
 }
 
-// ══ 시작 ══
 document.addEventListener('DOMContentLoaded',initLogin);
 </script>
 </body>
