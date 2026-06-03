@@ -217,6 +217,7 @@ body.warned{padding-top:40px}
 // ══════════════════════════════════════════════════════════
 const API = 'http://localhost:17900/api';
 const CHECK_INTERVAL = 10000; // 서버 상태 체크 주기 (ms)
+const SESSION_KEY = 'main';   // ★ DB의 session_key 칸에 들어갈 값 (원하는 식별자로 변경 가능)
 
 // ══════════════════════════════════════════════════════════
 // 유틸
@@ -311,13 +312,14 @@ function rowToCard(r){
 
 function cardToRow(card){
   return{
+    session_key:SESSION_KEY,
     url        :card.url||'',
     title      :card.title||'',
     note       :card.note||'',
     tags       :card.tags||[],
     archive_url:card.archiveUrl||'',
-    created_at :new Date(card.created||Date.now()).toISOString(),
-    archived_at:new Date(card.archived||Date.now()).toISOString(),
+    created_at :Math.floor(card.created||Date.now()),
+    archived_at:Math.floor(card.archived||Date.now()),
   };
 }
 
