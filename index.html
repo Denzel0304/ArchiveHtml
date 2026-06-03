@@ -227,7 +227,7 @@ function eh(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').r
 function domain(url){try{return new URL(url).hostname.replace(/^www\./,'');}catch(e){return url||'';}}
 function favicon(url){if(!url||!url.startsWith('http'))return'';return`https://www.google.com/s2/favicons?domain=${encodeURIComponent(url)}&sz=32`;}
 function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
-function toast(msg,dur=2200){const t=g('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
+function toast(msg,dur=3800){const t=g('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
 function makeWildcardArchiveUrl(url){return`https://web.archive.org/web/${url}`;}
 // 시간값이 숫자(epoch ms)든 ISO 문자열이든 항상 ms 숫자로 변환
 function toMs(v){
