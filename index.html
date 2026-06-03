@@ -228,6 +228,13 @@ function favicon(url){if(!url||!url.startsWith('http'))return'';return`https://w
 function fmtDate(ts){if(!ts)return'-';const d=new Date(ts);return`${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;}
 function toast(msg,dur=2200){const t=g('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),dur);}
 function makeWildcardArchiveUrl(url){return`https://web.archive.org/web/${url}`;}
+// 시간값이 숫자(epoch ms)든 ISO 문자열이든 항상 ms 숫자로 변환
+function toMs(v){
+  if(v==null)return Date.now();
+  if(typeof v==='number')return v;
+  const n=Number(v); if(!Number.isNaN(n)&&String(v).trim()!=='')return n;
+  const p=Date.parse(v); return Number.isNaN(p)?Date.now():p;
+}
 
 // ══════════════════════════════════════════════════════════
 // 서버 상태 체크
@@ -296,8 +303,8 @@ function rowToCard(r){
     note      :r.note||'',
     tags      :r.tags||[],
     archiveUrl:r.archive_url||'',
-    created   :r.created_at||Date.now(),
-    archived  :r.archived_at||Date.now(),
+    created   :toMs(r.created_at),
+    archived  :toMs(r.archived_at),
     sbId      :r.id,
   };
 }
@@ -309,8 +316,8 @@ function cardToRow(card){
     note       :card.note||'',
     tags       :card.tags||[],
     archive_url:card.archiveUrl||'',
-    created_at :card.created||Date.now(),
-    archived_at:card.archived||Date.now(),
+    created_at :new Date(card.created||Date.now()).toISOString(),
+    archived_at:new Date(card.archived||Date.now()).toISOString(),
   };
 }
 
@@ -377,23 +384,25 @@ async function handleArchive(){
   const note=g('note-input').value.trim();
   const tags=[...state.tempTags];
   const now=Date.now();
-  triggerSaveTab(url);
-  markSaveTriggered();
   if(state.editId){
     const card=db.cards.find(c=>c.id===state.editId);if(!card)return;
     card.url=url;card.title=title;card.note=note;card.tags=tags;
     card.archived=now;card.archiveUrl=makeWildcardArchiveUrl(url);
-    try{await updateCard(card);toast('박제 갱신을 시작했습니다');}
-    catch(e){toast('수정 저장 실패');}
-    exitEditMode();
+    try{
+      await updateCard(card);
+      triggerSaveTab(url);markSaveTriggered();
+      toast('박제 갱신을 시작했습니다');
+      exitEditMode();
+    }catch(e){toast('수정 저장 실패: '+(e.message||e),5000);}
   }else{
     const card={url,title,note,tags,created:now,archived:now,archiveUrl:makeWildcardArchiveUrl(url)};
     try{
       const saved=await insertCard(card);
       db.cards.unshift(saved);
+      triggerSaveTab(url);markSaveTriggered();
       toast('박제를 시작했습니다 — 🏛 버튼은 이미 활성화');
       clearInput();
-    }catch(e){toast('저장 실패');}
+    }catch(e){toast('저장 실패: '+(e.message||e),5000);}
   }
   render();
 }
@@ -405,7 +414,7 @@ async function reArchive(id){
   if(cd>0){toast(`archive.org 동시 요청 제한 — ${Math.ceil(cd/1000)}초 후 다시 시도하세요`,3000);return;}
   c.archived=Date.now();c.archiveUrl=makeWildcardArchiveUrl(c.url);
   try{await updateCard(c);render();triggerSaveTab(c.url);markSaveTriggered();toast('재박제를 시작했습니다');}
-  catch(e){toast('수정 저장 실패');}
+  catch(e){toast('수정 저장 실패: '+(e.message||e),5000);}
 }
 
 async function deleteCard(id){
